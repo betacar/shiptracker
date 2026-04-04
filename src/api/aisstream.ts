@@ -198,7 +198,15 @@ export function createAisStream(
 
   function updateBounds(bounds: BoundingBox): void {
     currentBounds = bounds;
-    sendSubscription();
+    // AISStream ignores subsequent subscriptions on the same connection,
+    // so reconnect with the new bounding box
+    if (ws) {
+      ws.onclose = null;
+      ws.close();
+      ws = null;
+    }
+    connected = false;
+    start(bounds);
   }
 
   function stop(): void {

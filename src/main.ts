@@ -55,7 +55,7 @@ const { source, isGlobal } = createDataSource(
     bannerEl.textContent =
       "AISStream connection failed — falling back to Baltic region";
     bannerEl.classList.remove("hidden");
-  },
+  }
 );
 
 if (!isGlobal) {
@@ -74,7 +74,7 @@ map.on("moveend", () => {
   if (boundsTimer !== null) clearTimeout(boundsTimer);
   boundsTimer = setTimeout(() => {
     source.updateBounds!(getMapBounds());
-  }, 500);
+  }, 1000);
 });
 
 // Prune stale markers periodically
