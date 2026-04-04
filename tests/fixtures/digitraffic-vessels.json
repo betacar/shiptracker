@@ -1,0 +1,26 @@
+[
+  {
+    "mmsi": 219598000,
+    "name": "NORD SUPERIOR",
+    "imo": 9692129,
+    "callSign": "OWPA2",
+    "shipType": 80,
+    "destination": "NL AMS",
+    "draught": 118,
+    "eta": 416128,
+    "posType": 1,
+    "timestamp": 1718458200000
+  },
+  {
+    "mmsi": 376128000,
+    "name": "FFS ATLAS",
+    "imo": 8500953,
+    "callSign": "J8B4709",
+    "shipType": 52,
+    "destination": "UNKNOWN",
+    "draught": 36,
+    "eta": 811520,
+    "posType": 1,
+    "timestamp": 1718458200000
+  }
+]

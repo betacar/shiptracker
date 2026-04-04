@@ -1,0 +1,31 @@
+{
+  "MessageType": "PositionReport",
+  "Message": {
+    "PositionReport": {
+      "MessageID": 1,
+      "RepeatIndicator": 0,
+      "UserID": 245473000,
+      "NavigationalStatus": 0,
+      "RateOfTurn": 0,
+      "Sog": 12.3,
+      "PositionAccuracy": true,
+      "Longitude": 3.590817,
+      "Latitude": 51.444588,
+      "Cog": 205.7,
+      "TrueHeading": 205,
+      "Timestamp": 12,
+      "SpecialManoeuvreIndicator": 0,
+      "Spare": 0,
+      "Raim": true,
+      "CommunicationState": 59916,
+      "Valid": true
+    }
+  },
+  "MetaData": {
+    "MMSI": 245473000,
+    "ShipName": "NORD SUPERIOR",
+    "latitude": 51.444588,
+    "longitude": 3.590817,
+    "time_utc": "2024-06-15 14:30:00"
+  }
+}

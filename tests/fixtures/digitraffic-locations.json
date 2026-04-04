@@ -1,0 +1,46 @@
+{
+  "type": "FeatureCollection",
+  "dataUpdatedTime": "2024-06-15T14:30:00Z",
+  "features": [
+    {
+      "mmsi": 219598000,
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [20.85169, 55.770832]
+      },
+      "properties": {
+        "mmsi": 219598000,
+        "sog": 0.1,
+        "cog": 346.5,
+        "navStat": 1,
+        "rot": 4,
+        "posAcc": true,
+        "raim": true,
+        "heading": 79,
+        "timestamp": 59,
+        "timestampExternal": 1718458200000
+      }
+    },
+    {
+      "mmsi": 376128000,
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [24.956, 60.167]
+      },
+      "properties": {
+        "mmsi": 376128000,
+        "sog": 8.5,
+        "cog": 125.3,
+        "navStat": 0,
+        "rot": 0,
+        "posAcc": true,
+        "raim": false,
+        "heading": 124,
+        "timestamp": 30,
+        "timestampExternal": 1718458200000
+      }
+    }
+  ]
+}

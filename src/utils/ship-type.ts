@@ -1,0 +1,70 @@
+export interface ShipTypeInfo {
+  readonly label: string;
+  readonly color: string;
+}
+
+const SHIP_TYPE_MAP: Record<number, ShipTypeInfo> = {
+  20: { label: "Wing in Ground", color: "#9b59b6" },
+  30: { label: "Fishing", color: "#f39c12" },
+  31: { label: "Towing", color: "#e67e22" },
+  32: { label: "Towing (large)", color: "#e67e22" },
+  33: { label: "Dredging", color: "#8e44ad" },
+  34: { label: "Diving", color: "#2980b9" },
+  35: { label: "Military", color: "#7f8c8d" },
+  36: { label: "Sailing", color: "#1abc9c" },
+  37: { label: "Pleasure Craft", color: "#1abc9c" },
+  40: { label: "High Speed Craft", color: "#e74c3c" },
+  41: { label: "High Speed Craft", color: "#e74c3c" },
+  42: { label: "High Speed Craft", color: "#e74c3c" },
+  43: { label: "High Speed Craft", color: "#e74c3c" },
+  44: { label: "High Speed Craft", color: "#e74c3c" },
+  45: { label: "High Speed Craft", color: "#e74c3c" },
+  46: { label: "High Speed Craft", color: "#e74c3c" },
+  47: { label: "High Speed Craft", color: "#e74c3c" },
+  48: { label: "High Speed Craft", color: "#e74c3c" },
+  49: { label: "High Speed Craft", color: "#e74c3c" },
+  50: { label: "Pilot Vessel", color: "#f1c40f" },
+  51: { label: "Search and Rescue", color: "#e74c3c" },
+  52: { label: "Tug", color: "#e67e22" },
+  53: { label: "Port Tender", color: "#f1c40f" },
+  54: { label: "Anti-pollution", color: "#27ae60" },
+  55: { label: "Law Enforcement", color: "#2c3e50" },
+  58: { label: "Medical Transport", color: "#e74c3c" },
+  59: { label: "Naval Vessel", color: "#7f8c8d" },
+  60: { label: "Passenger", color: "#3498db" },
+  61: { label: "Passenger", color: "#3498db" },
+  62: { label: "Passenger", color: "#3498db" },
+  63: { label: "Passenger", color: "#3498db" },
+  64: { label: "Passenger", color: "#3498db" },
+  65: { label: "Passenger", color: "#3498db" },
+  66: { label: "Passenger", color: "#3498db" },
+  67: { label: "Passenger", color: "#3498db" },
+  68: { label: "Passenger", color: "#3498db" },
+  69: { label: "Passenger", color: "#3498db" },
+  70: { label: "Cargo", color: "#2ecc71" },
+  71: { label: "Cargo (Hazmat A)", color: "#2ecc71" },
+  72: { label: "Cargo (Hazmat B)", color: "#2ecc71" },
+  73: { label: "Cargo (Hazmat C)", color: "#2ecc71" },
+  74: { label: "Cargo (Hazmat D)", color: "#2ecc71" },
+  75: { label: "Cargo", color: "#2ecc71" },
+  76: { label: "Cargo", color: "#2ecc71" },
+  77: { label: "Cargo", color: "#2ecc71" },
+  78: { label: "Cargo", color: "#2ecc71" },
+  79: { label: "Cargo", color: "#2ecc71" },
+  80: { label: "Tanker", color: "#e74c3c" },
+  81: { label: "Tanker (Hazmat A)", color: "#e74c3c" },
+  82: { label: "Tanker (Hazmat B)", color: "#e74c3c" },
+  83: { label: "Tanker (Hazmat C)", color: "#e74c3c" },
+  84: { label: "Tanker (Hazmat D)", color: "#e74c3c" },
+  85: { label: "Tanker", color: "#e74c3c" },
+  86: { label: "Tanker", color: "#e74c3c" },
+  87: { label: "Tanker", color: "#e74c3c" },
+  88: { label: "Tanker", color: "#e74c3c" },
+  89: { label: "Tanker", color: "#e74c3c" },
+};
+
+const DEFAULT_INFO: ShipTypeInfo = { label: "Other", color: "#95a5a6" };
+
+export function getShipTypeInfo(code: number): ShipTypeInfo {
+  return SHIP_TYPE_MAP[code] ?? DEFAULT_INFO;
+}

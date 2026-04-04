@@ -1,0 +1,37 @@
+{
+  "MessageType": "ShipStaticData",
+  "Message": {
+    "ShipStaticData": {
+      "MessageID": 5,
+      "RepeatIndicator": 0,
+      "UserID": 245473000,
+      "AisVersion": 2,
+      "ImoNumber": 9692129,
+      "CallSign": "OWPA2",
+      "Name": "NORD SUPERIOR",
+      "Type": 80,
+      "Dimension": {
+        "A": 100,
+        "B": 100,
+        "C": 16,
+        "D": 16
+      },
+      "FixType": 1,
+      "Eta": {
+        "Month": 4,
+        "Day": 16,
+        "Hour": 12,
+        "Minute": 0
+      },
+      "MaximumStaticDraught": 11.8,
+      "Destination": "NL AMS",
+      "Dte": false,
+      "Spare": false,
+      "Valid": true
+    }
+  },
+  "MetaData": {
+    "MMSI": 245473000,
+    "ShipName": "NORD SUPERIOR"
+  }
+}
