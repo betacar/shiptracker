@@ -4,6 +4,7 @@ import { createMarkerManager } from "./map/marker-manager";
 import { createDataSource } from "./api/data-source";
 import { showPanel, hidePanel } from "./ui/ship-panel";
 import { STALE_THRESHOLD_MS } from "./config";
+import type { BoundingBox } from "./types";
 
 const map = initMap("map");
 const panelEl = document.getElementById("ship-panel")!;
@@ -15,6 +16,16 @@ let firstDataReceived = false;
 
 function updateCount(count: number): void {
   countEl.textContent = String(count);
+}
+
+function getMapBounds(): BoundingBox {
+  const b = map.getBounds();
+  return {
+    south: b.getSouth(),
+    west: b.getWest(),
+    north: b.getNorth(),
+    east: b.getEast(),
+  };
 }
 
 function handleShipClick(mmsi: number): void {
@@ -44,7 +55,7 @@ const { source, isGlobal } = createDataSource(
     bannerEl.textContent =
       "AISStream connection failed — falling back to Baltic region";
     bannerEl.classList.remove("hidden");
-  }
+  },
 );
 
 if (!isGlobal) {
@@ -56,10 +67,21 @@ map.on("click", () => {
   hidePanel(panelEl);
 });
 
+// Update data source bounds on pan/zoom (debounced)
+let boundsTimer: ReturnType<typeof setTimeout> | null = null;
+map.on("moveend", () => {
+  if (!source.updateBounds) return;
+  if (boundsTimer !== null) clearTimeout(boundsTimer);
+  boundsTimer = setTimeout(() => {
+    source.updateBounds!(getMapBounds());
+  }, 500);
+});
+
 // Prune stale markers periodically
 setInterval(() => {
   markerManager.pruneStale();
   updateCount(markerManager.getVesselCount());
 }, STALE_THRESHOLD_MS);
 
-source.start();
+// Start with current viewport bounds
+source.start(getMapBounds());

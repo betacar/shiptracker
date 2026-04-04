@@ -1,4 +1,9 @@
-import type { VesselLocation, VesselMetadata, DataSource } from "../types";
+import type {
+  VesselLocation,
+  VesselMetadata,
+  DataSource,
+  BoundingBox,
+} from "../types";
 import { createAisStream } from "./aisstream";
 import { createDigitrafficSource } from "./digitraffic";
 
@@ -24,11 +29,12 @@ export function createDataSource(
 
     return {
       source: {
-        start: () => aisSource.start(),
+        start: (bounds?: BoundingBox) => aisSource.start(bounds),
         stop: () => {
           aisSource.stop();
           fallbackSource.stop();
         },
+        updateBounds: (bounds: BoundingBox) => aisSource.updateBounds?.(bounds),
       },
       isGlobal: true,
     };

@@ -1,5 +1,10 @@
 import { AISSTREAM_WS_URL } from "../config";
-import type { VesselLocation, VesselMetadata, DataSource } from "../types";
+import type {
+  VesselLocation,
+  VesselMetadata,
+  DataSource,
+  BoundingBox,
+} from "../types";
 
 export interface AisStreamMessage {
   readonly MessageType: string;
@@ -46,7 +51,7 @@ export interface AisStreamMessage {
 }
 
 export function parsePositionReport(
-  msg: AisStreamMessage,
+  msg: AisStreamMessage
 ): VesselLocation | null {
   const report = msg.Message.PositionReport;
   if (!report) return null;
@@ -64,7 +69,7 @@ export function parsePositionReport(
 }
 
 export function parseShipStaticData(
-  msg: AisStreamMessage,
+  msg: AisStreamMessage
 ): VesselMetadata | null {
   const data = msg.Message.ShipStaticData;
   if (!data) return null;
@@ -92,7 +97,7 @@ function encodeEta(
   month: number,
   day: number,
   hour: number,
-  minute: number,
+  minute: number
 ): number {
   if (month === 0 && day === 0 && hour === 0 && minute === 0) return 0;
   const now = new Date();
@@ -103,16 +108,43 @@ function encodeEta(
 
 export const CONNECT_TIMEOUT_MS = 10_000;
 
+function boundsToBoundingBoxes(
+  bounds?: BoundingBox
+): [[number, number], [number, number]][] {
+  if (!bounds)
+    return [
+      [
+        [-90, -180],
+        [90, 180],
+      ],
+    ];
+  return [
+    [
+      [bounds.south, bounds.west],
+      [bounds.north, bounds.east],
+    ],
+  ];
+}
+
+function buildSubscription(apiKey: string, bounds?: BoundingBox): string {
+  return JSON.stringify({
+    APIKey: apiKey,
+    BoundingBoxes: boundsToBoundingBoxes(bounds),
+    FilterMessageTypes: ["PositionReport", "ShipStaticData"],
+  });
+}
+
 export function createAisStream(
   apiKey: string,
   onPosition: (loc: VesselLocation) => void,
   onMetadata: (meta: VesselMetadata) => void,
-  onConnectionFailed?: () => void,
+  onConnectionFailed?: () => void
 ): DataSource {
   let ws: WebSocket | null = null;
   let connectTimer: ReturnType<typeof setTimeout> | null = null;
   let connected = false;
   let stopped = false;
+  let currentBounds: BoundingBox | undefined;
 
   function clearConnectTimer(): void {
     if (connectTimer !== null) {
@@ -121,7 +153,14 @@ export function createAisStream(
     }
   }
 
-  function start(): void {
+  function sendSubscription(): void {
+    if (ws?.readyState === WebSocket.OPEN) {
+      ws.send(buildSubscription(apiKey, currentBounds));
+    }
+  }
+
+  function start(bounds?: BoundingBox): void {
+    currentBounds = bounds;
     stopped = false;
     ws = new WebSocket(AISSTREAM_WS_URL);
 
@@ -135,18 +174,7 @@ export function createAisStream(
     ws.onopen = () => {
       connected = true;
       clearConnectTimer();
-      ws?.send(
-        JSON.stringify({
-          APIKey: apiKey,
-          BoundingBoxes: [
-            [
-              [-90, -180],
-              [90, 180],
-            ],
-          ],
-          FilterMessageTypes: ["PositionReport", "ShipStaticData"],
-        }),
-      );
+      sendSubscription();
     };
 
     ws.onmessage = (event: MessageEvent) => {
@@ -163,9 +191,14 @@ export function createAisStream(
 
     ws.onclose = () => {
       if (!stopped) {
-        setTimeout(start, 5000);
+        setTimeout(() => start(currentBounds), 5000);
       }
     };
+  }
+
+  function updateBounds(bounds: BoundingBox): void {
+    currentBounds = bounds;
+    sendSubscription();
   }
 
   function stop(): void {
@@ -178,5 +211,5 @@ export function createAisStream(
     }
   }
 
-  return { start, stop };
+  return { start, stop, updateBounds };
 }

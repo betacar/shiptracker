@@ -34,7 +34,15 @@ export interface DataSourceCallbacks {
   readonly onMetadata: (metadata: VesselMetadata) => void;
 }
 
+export interface BoundingBox {
+  readonly south: number;
+  readonly west: number;
+  readonly north: number;
+  readonly east: number;
+}
+
 export interface DataSource {
-  readonly start: () => void;
+  readonly start: (bounds?: BoundingBox) => void;
   readonly stop: () => void;
+  readonly updateBounds?: (bounds: BoundingBox) => void;
 }
