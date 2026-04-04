@@ -13,6 +13,8 @@ dist-ssr
 *.local
 .env
 coverage
+.playwright-mcp/
+*.png
 
 # Editor directories and files
 .vscode/*
