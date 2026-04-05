@@ -17,31 +17,22 @@ export function createDataSource(
   onMetadata: (meta: VesselMetadata) => void,
   onFallback?: () => void,
 ): DataSourceResult {
-  const apiKey = import.meta.env.VITE_AISSTREAM_API_KEY as string | undefined;
+  const fallbackSource = createDigitrafficSource(onPosition, onMetadata);
 
-  if (apiKey && apiKey !== "your-api-key-here") {
-    const fallbackSource = createDigitrafficSource(onPosition, onMetadata);
-
-    const aisSource = createAisStream(apiKey, onPosition, onMetadata, () => {
-      fallbackSource.start();
-      onFallback?.();
-    });
-
-    return {
-      source: {
-        start: (bounds?: BoundingBox) => aisSource.start(bounds),
-        stop: () => {
-          aisSource.stop();
-          fallbackSource.stop();
-        },
-        updateBounds: (bounds: BoundingBox) => aisSource.updateBounds?.(bounds),
-      },
-      isGlobal: true,
-    };
-  }
+  const aisSource = createAisStream(onPosition, onMetadata, () => {
+    fallbackSource.start();
+    onFallback?.();
+  });
 
   return {
-    source: createDigitrafficSource(onPosition, onMetadata),
-    isGlobal: false,
+    source: {
+      start: (bounds?: BoundingBox) => aisSource.start(bounds),
+      stop: () => {
+        aisSource.stop();
+        fallbackSource.stop();
+      },
+      updateBounds: (bounds: BoundingBox) => aisSource.updateBounds?.(bounds),
+    },
+    isGlobal: true,
   };
 }

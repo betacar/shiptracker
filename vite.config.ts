@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import { loadEnv } from "vite";
 import type { ViteDevServer } from "vite";
 import { WebSocketServer, WebSocket as NodeWS } from "ws";
 
@@ -6,6 +7,8 @@ function aisProxyPlugin() {
   return {
     name: "ais-ws-proxy",
     configureServer(server: ViteDevServer) {
+      const env = loadEnv("development", process.cwd(), "");
+      const apiKey = env.AISSTREAM_API_KEY ?? "";
       const wss = new WebSocketServer({ noServer: true });
 
       server.httpServer?.on("upgrade", (req, socket, head) => {
@@ -15,23 +18,20 @@ function aisProxyPlugin() {
           const buffered: string[] = [];
           let upstreamReady = false;
 
-          const upstream = new NodeWS(
-            "wss://stream.aisstream.io/v0/stream",
-          );
+          const upstream = new NodeWS("wss://stream.aisstream.io/v0/stream");
 
-          // Buffer client messages until upstream is ready
           client.on("message", (data) => {
-            const msg = data.toString();
+            const text = data.toString();
+            const enriched = injectApiKey(text, apiKey);
             if (upstreamReady && upstream.readyState === NodeWS.OPEN) {
-              upstream.send(msg);
+              upstream.send(enriched);
             } else {
-              buffered.push(msg);
+              buffered.push(enriched);
             }
           });
 
           upstream.on("open", () => {
             upstreamReady = true;
-            // Flush buffered messages (includes subscription)
             for (const msg of buffered) {
               upstream.send(msg);
             }
@@ -39,8 +39,7 @@ function aisProxyPlugin() {
           });
 
           upstream.on("message", (data) => {
-            if (client.readyState === NodeWS.OPEN)
-              client.send(data.toString());
+            if (client.readyState === NodeWS.OPEN) client.send(data.toString());
           });
 
           client.on("close", () => upstream.close());
@@ -50,6 +49,18 @@ function aisProxyPlugin() {
       });
     },
   };
+}
+
+function injectApiKey(text: string, apiKey: string): string {
+  try {
+    const msg = JSON.parse(text);
+    if (msg.BoundingBoxes && !msg.APIKey) {
+      return JSON.stringify({ ...msg, APIKey: apiKey });
+    }
+  } catch {
+    // Not JSON, pass through
+  }
+  return text;
 }
 
 export default defineConfig({

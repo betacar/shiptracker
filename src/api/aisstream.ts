@@ -126,16 +126,14 @@ function boundsToBoundingBoxes(
   ];
 }
 
-function buildSubscription(apiKey: string, bounds?: BoundingBox): string {
+function buildSubscription(bounds?: BoundingBox): string {
   return JSON.stringify({
-    APIKey: apiKey,
     BoundingBoxes: boundsToBoundingBoxes(bounds),
     FilterMessageTypes: ["PositionReport", "ShipStaticData"],
   });
 }
 
 export function createAisStream(
-  apiKey: string,
   onPosition: (loc: VesselLocation) => void,
   onMetadata: (meta: VesselMetadata) => void,
   onConnectionFailed?: () => void
@@ -155,7 +153,7 @@ export function createAisStream(
 
   function sendSubscription(): void {
     if (ws?.readyState === WebSocket.OPEN) {
-      ws.send(buildSubscription(apiKey, currentBounds));
+      ws.send(buildSubscription(currentBounds));
     }
   }
 

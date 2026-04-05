@@ -39,7 +39,7 @@ function handleShipClick(mmsi: number): void {
 
 const markerManager = createMarkerManager(map, handleShipClick);
 
-const { source, isGlobal } = createDataSource(
+const { source } = createDataSource(
   (location) => {
     if (!firstDataReceived) {
       firstDataReceived = true;
@@ -57,10 +57,6 @@ const { source, isGlobal } = createDataSource(
     bannerEl.classList.remove("hidden");
   }
 );
-
-if (!isGlobal) {
-  bannerEl.classList.remove("hidden");
-}
 
 // Close panel when clicking the map
 map.on("click", () => {

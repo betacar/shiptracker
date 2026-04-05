@@ -1,10 +1,27 @@
 export interface Env {
   ASSETS: Fetcher;
+  AISSTREAM_API_KEY: string;
 }
 
 const UPSTREAM_URL = "https://stream.aisstream.io/v0/stream";
 
-async function handleWebSocketProxy(request: Request): Promise<Response> {
+function injectApiKey(data: string | ArrayBuffer, apiKey: string): string {
+  const text = typeof data === "string" ? data : new TextDecoder().decode(data);
+  try {
+    const msg = JSON.parse(text);
+    if (msg.BoundingBoxes && !msg.APIKey) {
+      return JSON.stringify({ ...msg, APIKey: apiKey });
+    }
+  } catch {
+    // Not JSON, pass through
+  }
+  return text;
+}
+
+async function handleWebSocketProxy(
+  request: Request,
+  apiKey: string,
+): Promise<Response> {
   const upgradeHeader = request.headers.get("Upgrade");
   if (!upgradeHeader || upgradeHeader.toLowerCase() !== "websocket") {
     return new Response("Expected Upgrade: websocket", { status: 426 });
@@ -32,7 +49,8 @@ async function handleWebSocketProxy(request: Request): Promise<Response> {
 
   serverSocket.addEventListener("message", (event) => {
     try {
-      upstream.send(event.data);
+      const enriched = injectApiKey(event.data, apiKey);
+      upstream.send(enriched);
     } catch {
       serverSocket.close(1011, "Upstream send failed");
     }
@@ -52,8 +70,12 @@ async function handleWebSocketProxy(request: Request): Promise<Response> {
   upstream.addEventListener("close", (event) => {
     serverSocket.close(event.code, event.reason);
   });
-  serverSocket.addEventListener("error", () => upstream.close(1011, "Client error"));
-  upstream.addEventListener("error", () => serverSocket.close(1011, "Upstream error"));
+  serverSocket.addEventListener("error", () =>
+    upstream.close(1011, "Client error"),
+  );
+  upstream.addEventListener("error", () =>
+    serverSocket.close(1011, "Upstream error"),
+  );
 
   return new Response(null, { status: 101, webSocket: clientSocket });
 }
@@ -63,7 +85,7 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === "/ais-ws") {
-      return handleWebSocketProxy(request);
+      return handleWebSocketProxy(request, env.AISSTREAM_API_KEY);
     }
 
     return env.ASSETS.fetch(request);

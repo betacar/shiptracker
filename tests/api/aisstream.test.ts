@@ -128,14 +128,14 @@ describe("createAisStream", () => {
   it("opens WebSocket and sends subscription on connect", () => {
     const onPos = vi.fn();
     const onMeta = vi.fn();
-    const source = createAisStream("test-key", onPos, onMeta);
+    const source = createAisStream(onPos, onMeta);
 
     source.start();
     mockWs.onopen!();
 
     expect(mockWs.send).toHaveBeenCalledOnce();
     const sent = JSON.parse(mockWs.send.mock.calls[0][0] as string);
-    expect(sent.APIKey).toBe("test-key");
+    expect(sent.APIKey).toBeUndefined();
     expect(sent.FilterMessageTypes).toContain("PositionReport");
     expect(sent.FilterMessageTypes).toContain("ShipStaticData");
   });
@@ -143,7 +143,7 @@ describe("createAisStream", () => {
   it("calls onPosition for PositionReport messages", () => {
     const onPos = vi.fn();
     const onMeta = vi.fn();
-    const source = createAisStream("key", onPos, onMeta);
+    const source = createAisStream(onPos, onMeta);
 
     source.start();
     mockWs.onmessage!({ data: JSON.stringify(positionFixture) });
@@ -155,7 +155,7 @@ describe("createAisStream", () => {
   it("calls onMetadata for ShipStaticData messages", () => {
     const onPos = vi.fn();
     const onMeta = vi.fn();
-    const source = createAisStream("key", onPos, onMeta);
+    const source = createAisStream(onPos, onMeta);
 
     source.start();
     mockWs.onmessage!({ data: JSON.stringify(staticFixture) });
@@ -165,7 +165,7 @@ describe("createAisStream", () => {
   });
 
   it("closes WebSocket on stop", () => {
-    const source = createAisStream("key", vi.fn(), vi.fn());
+    const source = createAisStream(vi.fn(), vi.fn());
     source.start();
     source.stop();
     expect(mockWs.close).toHaveBeenCalledOnce();
@@ -174,7 +174,7 @@ describe("createAisStream", () => {
   it("ignores unknown message types", () => {
     const onPos = vi.fn();
     const onMeta = vi.fn();
-    const source = createAisStream("key", onPos, onMeta);
+    const source = createAisStream(onPos, onMeta);
 
     source.start();
     mockWs.onmessage!({
@@ -192,7 +192,7 @@ describe("createAisStream", () => {
   it("calls onConnectionFailed after timeout if WebSocket never opens", () => {
     vi.useFakeTimers();
     const onFailed = vi.fn();
-    const source = createAisStream("key", vi.fn(), vi.fn(), onFailed);
+    const source = createAisStream(vi.fn(), vi.fn(), onFailed);
 
     source.start();
     expect(onFailed).not.toHaveBeenCalled();
@@ -206,7 +206,7 @@ describe("createAisStream", () => {
   it("does not call onConnectionFailed if WebSocket opens in time", () => {
     vi.useFakeTimers();
     const onFailed = vi.fn();
-    const source = createAisStream("key", vi.fn(), vi.fn(), onFailed);
+    const source = createAisStream(vi.fn(), vi.fn(), onFailed);
 
     source.start();
     mockWs.onopen!();
