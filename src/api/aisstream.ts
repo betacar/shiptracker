@@ -177,8 +177,12 @@ export function createAisStream(
       sendSubscription();
     };
 
-    ws.onmessage = (event: MessageEvent) => {
-      const msg: AisStreamMessage = JSON.parse(String(event.data));
+    ws.onmessage = async (event: MessageEvent) => {
+      const raw =
+        event.data instanceof Blob
+          ? await event.data.text()
+          : String(event.data);
+      const msg: AisStreamMessage = JSON.parse(raw);
 
       if (msg.MessageType === "PositionReport") {
         const location = parsePositionReport(msg);
